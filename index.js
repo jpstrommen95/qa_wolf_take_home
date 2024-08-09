@@ -1,6 +1,37 @@
 const { chromium } = require("playwright");
 
 /**
+ * Prints titles for each article.
+ * 
+ * @param numArticles - the number of articles to print
+ */
+async function printHackerNewsTitles({ numArticles }) {
+  // Launch the browser
+  const browser = await chromium.launch({ headless: false });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  // Go to Hacker News
+  await page.goto("https://news.ycombinator.com/newest");
+
+  // Extract the titles of the first 100 articles
+  const titles = await page.$$eval('.athing', (articles, numArticles) => 
+    articles.slice(0, numArticles).map(article => 
+      article.querySelector('.titleline a').innerText
+    ),
+    numArticles
+  );
+
+  // Print each title
+  titles.forEach((title, index) => {
+    console.log(`${index + 1}. ${title}`);
+  });
+
+  // Close the browser
+  await browser.close();
+}
+
+/**
  * Checks if the first <numArticles> articles are sorted from newest to oldest.
  * And reports the result to console.
  * 
@@ -44,5 +75,8 @@ async function checkHackerNewsArticlesSorted({ numArticles }) {
 }
 
 (async () => {
-  await checkHackerNewsArticlesSorted({ numArticles: 100 });
+  const numArticles = 100;
+
+  await checkHackerNewsArticlesSorted({ numArticles });
+  await printHackerNewsTitles({ numArticles });
 })();
