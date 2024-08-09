@@ -10,24 +10,30 @@ async function printHackerNewsTitles({ numArticles }) {
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
+  
+  let titles = [];
+  let currentPage = 1;
 
-  // Go to Hacker News
-  await page.goto("https://news.ycombinator.com/newest");
+  while (titles.length < numArticles) {
+    // Go to the Hacker News "newest" page, paginated
+    await page.goto(`https://news.ycombinator.com/newest?p=${currentPage}`);
 
-  // Extract the titles of the first 100 articles
-  const titles = await page.$$eval('.athing', (articles, numArticles) => 
-    articles.slice(0, numArticles).map(article => 
-      article.querySelector('.titleline a').innerText
-    ),
-    numArticles
-  );
+    // Extract titles from the current page
+    const newTitles = await page.$$eval('.athing', articles =>
+      articles.map(article => 
+        article.querySelector('.titleline a').innerText
+      )
+    );
 
-  // Print each title
-  titles.forEach((title, index) => {
+    titles = titles.concat(newTitles);
+    currentPage++;
+  }
+
+  // Print the first 100 titles (or less if there aren't enough on the site)
+  titles.slice(0, numArticles).forEach((title, index) => {
     console.log(`${index + 1}. ${title}`);
   });
 
-  // Close the browser
   await browser.close();
 }
 
@@ -37,7 +43,7 @@ async function printHackerNewsTitles({ numArticles }) {
  * 
  * @param numArticles - the number of articles to check
  */
-async function checkHackerNewsArticlesSorted({ numArticles }) {
+async function checkHackerNewsArticlesSorted({ numArticles }) { // FIXME only does the articles from the first page
   // Launch the browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
