@@ -10,12 +10,13 @@ async function sortHackerNewsArticles({ numArticles }) {
   await page.goto("https://news.ycombinator.com/newest");
 
   // Extract the titles and timestamps of the first 100 articles
-  const articles = await page.$$eval('.athing', articles => 
+  const articles = await page.$$eval('.athing', (articles, numArticles) => 
     articles.slice(0, numArticles).map(article => {
       const title = article.querySelector('.titleline a').innerText;
       const timestamp = article.nextSibling.querySelector('.age').innerText;
       return { title, timestamp };
-    })
+    }),
+    numArticles,
   );
 
   // Validate that the articles are sorted from newest to oldest
