@@ -1,4 +1,4 @@
-# 🐺 QA Wolf Take Home Assignment
+# Justin Strommen's 🐺 QA Wolf Take Home Assignment
 
 Welcome to the QA Wolf take home assignment for our [QA Engineer](https://www.notion.so/qawolf/QA-Wolf-QA-Engineer-Remote-156203a1e476459ea5e6ffca972d0efe) role! We appreciate your interest and look forward to seeing what you come up with.
 
@@ -6,7 +6,7 @@ Welcome to the QA Wolf take home assignment for our [QA Engineer](https://www.no
 
 This assignment has two questions as outlined below. When you are done, send [qa-hiring@qawolf.com](mailto:qa-hiring@qawolf.com) the following:
 
-1. A link to a zip file of this folder on Google Drive 
+1. A link to a zip file of this folder on Google Drive
 
 2. A note indicating your work location (Country/State)
 
@@ -14,7 +14,7 @@ This assignment has two questions as outlined below. When you are done, send [qa
 
 ### Question 1
 
-In this assignment, you will create a script on [Hacker News](https://news.ycombinator.com/) using JavaScript and Microsoft's [Playwright](https://playwright.dev/) framework. 
+In this assignment, you will create a script on [Hacker News](https://news.ycombinator.com/) using JavaScript and Microsoft's [Playwright](https://playwright.dev/) framework.
 
 1. Install node modules by running `npm i`.
 
@@ -26,7 +26,7 @@ Note that you are welcome to update Playwright or install other packages as you 
 
 Why do you want to work at QA Wolf? Please record a short, ~2 min video that includes:
 
-1. Your answer 
+1. Your answer
 
 2. A walk-through demonstration of your code, showing a successful execution
 
