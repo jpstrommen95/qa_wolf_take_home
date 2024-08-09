@@ -1,6 +1,6 @@
 const { chromium } = require("playwright");
 
-async function sortHackerNewsArticles() {
+async function sortHackerNewsArticles({ numArticles }) {
   // Launch the browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
@@ -11,7 +11,7 @@ async function sortHackerNewsArticles() {
 
   // Extract the titles and timestamps of the first 100 articles
   const articles = await page.$$eval('.athing', articles => 
-    articles.slice(0, 100).map(article => {
+    articles.slice(0, numArticles).map(article => {
       const title = article.querySelector('.titleline a').innerText;
       const timestamp = article.nextSibling.querySelector('.age').innerText;
       return { title, timestamp };
@@ -32,5 +32,5 @@ async function sortHackerNewsArticles() {
 }
 
 (async () => {
-  await sortHackerNewsArticles();
+  await sortHackerNewsArticles({ numArticles: 100 });
 })();
