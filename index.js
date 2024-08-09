@@ -1,11 +1,12 @@
 const { chromium } = require("playwright");
 
 /**
- * Verifies that the first <numArticles> articles are sorted from newest to oldest.
+ * Checks if the first <numArticles> articles are sorted from newest to oldest.
+ * And reports the result to console.
  * 
- * @param numArticles - the number of articles to verify
+ * @param numArticles - the number of articles to check
  */
-async function sortHackerNewsArticles({ numArticles }) {
+async function checkHackerNewsArticlesSorted({ numArticles }) {
   // Launch the browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
@@ -38,5 +39,5 @@ async function sortHackerNewsArticles({ numArticles }) {
 }
 
 (async () => {
-  await sortHackerNewsArticles({ numArticles: 100 });
+  await checkHackerNewsArticlesSorted({ numArticles: 100 });
 })();
