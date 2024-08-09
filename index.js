@@ -18,6 +18,11 @@ async function checkHackerNewsArticlesSorted({ numArticles }) {
   // Extract the titles and timestamps of the first 100 articles
   const articles = await page.$$eval('.athing', (articles, numArticles) => 
     articles.slice(0, numArticles).map(article => {
+      // Note that the structure of an article is a set of 3 adjacent rows:
+      // titleline
+      // <a bunch of metadata>
+      // spacer
+
       const title = article.querySelector('.titleline a').innerText;
       const timestamp = article.nextSibling.querySelector('.age').innerText;
       return { title, timestamp };
