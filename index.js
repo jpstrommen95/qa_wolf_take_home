@@ -1,5 +1,10 @@
 const { chromium } = require("playwright");
 
+/**
+ * Verifies that the first <numArticles> articles are sorted from newest to oldest.
+ * 
+ * @param numArticles - the number of articles to verify
+ */
 async function sortHackerNewsArticles({ numArticles }) {
   // Launch the browser
   const browser = await chromium.launch({ headless: false });
