@@ -17,7 +17,7 @@ function toString({
  * 
  * @returns an array of article objects
  */
-async function fetchArticles({ numArticles }) {
+async function fetchArticles({ numArticles, url }) {
   // Launch the browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
@@ -26,7 +26,7 @@ async function fetchArticles({ numArticles }) {
   let articlesData = [];
   let count = 0;  // Total count of articles fetched so far
 
-  await page.goto('https://news.ycombinator.com/newest');
+  await page.goto(url);
 
   while (articlesData.length < numArticles) {
     // Extract articles from the current page
@@ -97,10 +97,13 @@ async function checkHackerNewsArticlesSorted({ articles }) {
 }
 
 (async () => {
-  const articles = await fetchArticles({ numArticles: 100 });
+  const rootUrl = 'https://news.ycombinator.com/news';
+  const newestUrl = 'https://news.ycombinator.com/newest';
+
+  const newestArticles = await fetchArticles({ numArticles: 100, url: newestUrl });
 
   // console.log('raw articles', JSON.stringify(articles, null, 2));
 
-  await checkHackerNewsArticlesSorted({ articles });
-  await printHackerNewsTitles({ articles });
+  await checkHackerNewsArticlesSorted({ articles: newestArticles });
+  await printHackerNewsTitles({ articles: newestArticles });
 })();
