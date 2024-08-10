@@ -1,12 +1,13 @@
 const { chromium } = require("playwright");
 
 function toString({
-  title,
-  timestamp,
-  timeDescription,
+  id,
   index,
+  timeDescription,
+  timestamp,
+  title,
 }) {
-  return `${index + 1}. "${title}" from ${timeDescription}:${timestamp}`;
+  return `${index + 1}. ${id}:"${title}" from ${timeDescription}:${timestamp}`;
 }
 
 /**
@@ -38,6 +39,7 @@ async function fetchArticles({ numArticles }) {
     // Extract titles from the current page
     const newArticlesData = await page.$$eval('.athing', articles =>
       articles.map(article => ({
+        id: article.id,
         title: article.querySelector('.titleline a').innerText,
         timeDescription: article.nextSibling.querySelector('.age').innerText,
       }))
