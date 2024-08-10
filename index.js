@@ -1,4 +1,45 @@
+const moment = require('moment');
 const { chromium } = require("playwright");
+
+function convertRelativeTimeToEpoch(timeString) {
+  // Regex to capture the number and time unit
+  const regex = /(\d+)\s(\w+)\sago/;
+  const matches = timeString.match(regex);
+
+  if (matches) {
+    const [, amount, unit] = matches;
+
+    // Convert the captured time unit into a format recognized by moment.js
+    const timeUnits = {
+      minute: 'minutes',
+      minutes: 'minutes',
+      hour: 'hours',
+      hours: 'hours',
+      day: 'days',
+      days: 'days',
+      week: 'weeks',
+      weeks: 'weeks',
+      month: 'months',
+      months: 'months',
+      year: 'years',
+      years: 'years',
+    };
+
+    const timeUnit = timeUnits[unit.toLowerCase()];
+
+    if (timeUnit) {
+      // Subtract the time from the current moment
+      const pastTime = moment().subtract(parseInt(amount, 10), timeUnit);
+
+      // Convert to epoch time
+      return pastTime.valueOf(); // Returns the epoch time in milliseconds
+    } else {
+      throw new Error('Unknown time unit');
+    }
+  } else {
+    throw new Error('Time string format is incorrect');
+  }
+}
 
 function toString({
   id,
@@ -61,6 +102,7 @@ async function fetchArticles({ numArticles, url }) {
   return articlesData.slice(0, numArticles).map((article, index) => ({
     ...article,
     index,
+    timestamp: convertRelativeTimeToEpoch(article.timeDescription),
   }));
 };
 
