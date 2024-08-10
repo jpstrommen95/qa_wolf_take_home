@@ -11,17 +11,11 @@ function toString({
 }
 
 /**
- * Fetches articles from hacker news, retrieving a custom subset of relevant data.
+ * Fetch articles from Hacker News by clicking the "More" button until fetching the requested number of articles.
  * 
  * @param numArticles - the number of articles to fetch
  * 
  * @returns an array of article objects
- * ```
- * {
- *   title,
- *   age,
- * }
- * ```
  */
 async function fetchArticles({ numArticles }) {
   // Launch the browser
@@ -30,13 +24,12 @@ async function fetchArticles({ numArticles }) {
   const page = await context.newPage();
 
   let articlesData = [];
-  let currentPage = 1;
+  let count = 0;  // Total count of articles fetched so far
+
+  await page.goto('https://news.ycombinator.com/newest');
 
   while (articlesData.length < numArticles) {
-    // Go to the Hacker News "newest" page, paginated
-    await page.goto(`https://news.ycombinator.com/newest?p=${currentPage}`);
-
-    // Extract titles from the current page
+    // Extract articles from the current page
     const newArticlesData = await page.$$eval('.athing', articles =>
       articles.map(article => ({
         id: article.id,
@@ -46,11 +39,24 @@ async function fetchArticles({ numArticles }) {
     );
 
     articlesData = articlesData.concat(newArticlesData);
-    currentPage++;
+    count += newArticlesData.length;
+
+    if (articlesData.length >= numArticles) break;
+
+    // Click the "More" button
+    const moreButton = await page.$('.morelink');
+    if (moreButton) {
+      await moreButton.click();
+    } else {
+      // If the "More" button is not found, break the loop
+      console.log('No more articles to load.');
+      break;
+    }
+
+    await page.waitForSelector('.athing', { state: 'attached' });
   }
 
   await browser.close();
-
 
   return articlesData.slice(0, numArticles).map((article, index) => ({
     ...article,
