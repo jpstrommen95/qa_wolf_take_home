@@ -46,27 +46,24 @@ async function fetchArticles({ numArticles }) {
 /**
  * Prints titles for each article.
  * 
- * @param numArticles - the number of articles to print
+ * @param articles - the pre-retrieved articles
  */
-async function printHackerNewsTitles({ numArticles }) {
-  const articles = await fetchArticles({ numArticles });
+async function printHackerNewsTitles({ articles }) {
   const titles = articles.map(({ title }) => title);
 
   // Print the first 100 titles (or less if there aren't enough on the site)
-  titles.slice(0, numArticles).forEach((title, index) => {
+  titles.forEach((title, index) => {
     console.log(`${index + 1}. ${title}`);
   });
 }
 
 /**
- * Checks if the first <numArticles> articles are sorted from newest to oldest.
+ * Checks if the articles are sorted from newest to oldest.
  * And reports the result to console.
  * 
- * @param numArticles - the number of articles to check
+ * @param articles - the pre-retrieved articles to check
  */
-async function checkHackerNewsArticlesSorted({ numArticles }) {
-  const articles = await fetchArticles({ numArticles });
-
+async function checkHackerNewsArticlesSorted({ articles }) {
   // Validate that the articles are sorted from newest to oldest
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
@@ -78,8 +75,8 @@ async function checkHackerNewsArticlesSorted({ numArticles }) {
 }
 
 (async () => {
-  const numArticles = 100;
+  const articles = await fetchArticles({ numArticles: 100 });
 
-  await checkHackerNewsArticlesSorted({ numArticles });
-  await printHackerNewsTitles({ numArticles });
+  await checkHackerNewsArticlesSorted({ articles });
+  await printHackerNewsTitles({ articles });
 })();
