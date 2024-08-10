@@ -1,44 +1,25 @@
 const moment = require('moment');
 const { chromium } = require("playwright");
 
+const nowTime = moment();
+
 function convertRelativeTimeToEpoch(timeString) {
   // Regex to capture the number and time unit
   const regex = /(\d+)\s(\w+)\sago/;
   const matches = timeString.match(regex);
 
-  if (matches) {
-    const [, amount, unit] = matches;
-
-    // Convert the captured time unit into a format recognized by moment.js
-    const timeUnits = {
-      minute: 'minutes',
-      minutes: 'minutes',
-      hour: 'hours',
-      hours: 'hours',
-      day: 'days',
-      days: 'days',
-      week: 'weeks',
-      weeks: 'weeks',
-      month: 'months',
-      months: 'months',
-      year: 'years',
-      years: 'years',
-    };
-
-    const timeUnit = timeUnits[unit.toLowerCase()];
-
-    if (timeUnit) {
-      // Subtract the time from the current moment
-      const pastTime = moment().subtract(parseInt(amount, 10), timeUnit);
-
-      // Convert to epoch time
-      return pastTime.valueOf(); // Returns the epoch time in milliseconds
-    } else {
-      throw new Error('Unknown time unit');
-    }
-  } else {
+  if(!matches) {
     throw new Error('Time string format is incorrect');
   }
+
+  const [, amount, unit] = matches;
+  
+  // Subtract the time from the current moment
+  const pastTime = moment(nowTime).subtract(amount, unit);
+  
+  // console.debug(`now: ${nowTime}, timeString: ${timeString}, amount: ${amount}, unit: ${unit}, pastTime: ${pastTime}`);
+
+  return pastTime.valueOf(); // Convert to epoch time in ms
 }
 
 function toString({
@@ -48,7 +29,7 @@ function toString({
   timestamp,
   title,
 }) {
-  return `${index + 1}. ${id}:"${title}" from ${timeDescription}:${timestamp}`;
+  return `${index + 1}. ${moment(timestamp).toISOString()}:from ${timeDescription}:${id}:"${title}"`;
 }
 
 /**
@@ -94,7 +75,7 @@ async function fetchArticles({ numArticles, url }) {
       break;
     }
 
-    await page.waitForSelector('.athing', { state: 'attached' });
+    await page.waitForTimeout(1000);
   }
 
   await browser.close();
@@ -126,26 +107,41 @@ async function checkHackerNewsArticlesSorted({ articles }) {
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
     const previousArticle = articles[index - 1];
-    const isAfterPrevious = (article.timestamp >= previousArticle.timestamp);
+    const isBeforePrevious = (moment(article.timestamp).isBefore(previousArticle.timestamp));
+    const isMatch = article.timestamp === previousArticle.timestamp;
+    const isSortedSoFar = isBeforePrevious || isMatch;
 
-    if (!isAfterPrevious) {
-      console.log(`Expected ${toString(previousArticle)} to be before ${toString(article)}.`);
+    if (!isSortedSoFar) {
+      console.log(`Expected\n${toString(previousArticle)}\nto be newer than\n${toString(article)}.`);
     }
 
-    return isAfterPrevious;
+    return isSortedSoFar;
   });
 
   console.log(`The articles are ${isSorted ? '' : 'NOT '}sorted from newest to oldest.`);
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function doTests({ numArticles, url }) {
+  console.log(`Fetching from ${url}`);
+  const articles = await fetchArticles({ numArticles, url });
+  await printHackerNewsTitles({ articles: articles });
+  await checkHackerNewsArticlesSorted({ articles: articles });
+}
+
 (async () => {
-  const rootUrl = 'https://news.ycombinator.com/news';
-  const newestUrl = 'https://news.ycombinator.com/newest';
+  const numArticles = 100;
+  const urlList = [
+    'https://news.ycombinator.com/newest',
+    'https://news.ycombinator.com/news',
+  ];
 
-  const newestArticles = await fetchArticles({ numArticles: 100, url: newestUrl });
-
-  // console.log('raw articles', JSON.stringify(articles, null, 2));
-
-  await checkHackerNewsArticlesSorted({ articles: newestArticles });
-  await printHackerNewsTitles({ articles: newestArticles });
+  for (const url of urlList) {
+    await doTests({ numArticles, url });
+    console.log(`Completed checking ${url}.`);
+    sleep(5000);
+  }
 })();
