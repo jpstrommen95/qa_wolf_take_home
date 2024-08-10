@@ -3,9 +3,10 @@ const { chromium } = require("playwright");
 function toString({
   title,
   timestamp,
+  timeDescription,
   index,
 }) {
-  return `${index}. "${title}" from ${timestamp}`;
+  return `${index + 1}. "${title}" from ${timeDescription}:${timestamp}`;
 }
 
 /**
@@ -38,7 +39,7 @@ async function fetchArticles({ numArticles }) {
     const newArticlesData = await page.$$eval('.athing', articles =>
       articles.map(article => ({
         title: article.querySelector('.titleline a').innerText,
-        timestamp: article.nextSibling.querySelector('.age').innerText,
+        timeDescription: article.nextSibling.querySelector('.age').innerText,
       }))
     );
 
@@ -48,7 +49,11 @@ async function fetchArticles({ numArticles }) {
 
   await browser.close();
 
-  return articlesData.slice(0, numArticles);
+
+  return articlesData.slice(0, numArticles).map((article, index) => ({
+    ...article,
+    index,
+  }));
 };
 
 /**
@@ -57,12 +62,7 @@ async function fetchArticles({ numArticles }) {
  * @param articles - the pre-retrieved articles
  */
 async function printHackerNewsTitles({ articles }) {
-  const titles = articles.map(({ title }) => title);
-
-  // Print the first 100 titles (or less if there aren't enough on the site)
-  titles.forEach((title, index) => {
-    console.log(`${index + 1}. ${title}`);
-  });
+  articles.forEach((article) => console.log(toString(article)));
 }
 
 /**
@@ -79,7 +79,7 @@ async function checkHackerNewsArticlesSorted({ articles }) {
     const isAfterPrevious = (article.timestamp >= previousArticle.timestamp);
 
     if (!isAfterPrevious) {
-      console.log(`Expected ${toString({...article, index})} to be after ${toString({...previousArticle, index: index - 1 })}.`);
+      console.log(`Expected ${toString(previousArticle)} to be before ${toString(article)}.`);
     }
 
     return isAfterPrevious;
