@@ -1,5 +1,13 @@
 const { chromium } = require("playwright");
 
+function toString({
+  title,
+  timestamp,
+  index,
+}) {
+  return `${index}. "${title}" from ${timestamp}`;
+}
+
 /**
  * Fetches articles from hacker news, retrieving a custom subset of relevant data.
  * 
@@ -68,7 +76,13 @@ async function checkHackerNewsArticlesSorted({ articles }) {
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
     const previousArticle = articles[index - 1];
-    return new Date(article.timestamp) <= new Date(previousArticle.timestamp);
+    const isAfterPrevious = (article.timestamp >= previousArticle.timestamp);
+
+    if (!isAfterPrevious) {
+      console.log(`Expected ${toString({...article, index})} to be after ${toString({...previousArticle, index: index - 1 })}.`);
+    }
+
+    return isAfterPrevious;
   });
 
   console.log(`The articles are ${isSorted ? '' : 'NOT '}sorted from newest to oldest.`);
@@ -76,6 +90,8 @@ async function checkHackerNewsArticlesSorted({ articles }) {
 
 (async () => {
   const articles = await fetchArticles({ numArticles: 100 });
+
+  // console.log('raw articles', JSON.stringify(articles, null, 2));
 
   await checkHackerNewsArticlesSorted({ articles });
   await printHackerNewsTitles({ articles });
