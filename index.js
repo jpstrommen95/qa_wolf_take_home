@@ -164,8 +164,8 @@ async function doTests({ numArticles, url }) {
   console.log(`Fetching from ${url}`);
   console.log(`${`Current Time is`.padEnd(27, ' ')}:${moment(nowTime).toISOString()}`);
   const articles = await fetchArticles({ numArticles, url });
-  printHackerNewsTitles({ articles: articles });
-  checkHackerNewsArticlesSorted({ articles: articles });
+  printHackerNewsTitles({ articles });
+  checkHackerNewsArticlesSorted({ articles });
   checkHackerNewsIdSort({ articles });
   console.log(`Completed checking ${url}.`);
 }
