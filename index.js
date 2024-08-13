@@ -167,6 +167,7 @@ async function doTests({ numArticles, url }) {
   printHackerNewsTitles({ articles: articles });
   checkHackerNewsArticlesSorted({ articles: articles });
   checkHackerNewsIdSort({ articles });
+  console.log(`Completed checking ${url}.`);
 }
 
 (async () => {
@@ -178,7 +179,6 @@ async function doTests({ numArticles, url }) {
 
   for (const url of urlList) {
     await doTests({ numArticles, url });
-    console.log(`Completed checking ${url}.`);
     sleep(5000);
   }
 })();
