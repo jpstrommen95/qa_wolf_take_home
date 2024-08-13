@@ -121,14 +121,20 @@ function checkHackerNewsChronSort({ articles }) {
     const isSortedSoFar = isBeforePrevious || isMatch;
 
     if (!isSortedSoFar) {
-      console.log(`The articles are NOT sorted from newest to oldest.`);
-      console.log(`Expected\n${toString(previousArticle)}\nto be newer than\n${toString(article)}.`);
+      console.log([
+        `The articles are NOT sorted from newest to oldest. Expected:`,
+        `${toString(previousArticle)}`,
+        `to be newer than`,
+        `${toString(article)}.`,
+      ].join('\n  '));
     }
 
     return isSortedSoFar;
   });
 
-  console.log(`The articles are ${isSorted ? '' : 'NOT '}sorted from newest to oldest.`);
+  if (isSorted) {
+    console.log(`The articles are sorted from newest to oldest.`);
+  }
 }
 
 /**
@@ -145,8 +151,12 @@ function checkHackerNewsIdSort({ articles }) {
     const isSortedSoFar = previousArticle.id >= article.id;
 
     if (!isSortedSoFar) {
-      console.log(`The articles are NOT sorted by id.`);
-      console.log(`Expected\n${toString(previousArticle)}\nto have a higher id than\n${toString(article)}.`);
+      console.log([
+        `The articles are NOT sorted by id. Expected:`,
+        `${toString(previousArticle)}`,
+        `to have a higher id than`,
+        `${toString(article)}.`,
+      ].join('\n  '));
     }
 
     return isSortedSoFar;
