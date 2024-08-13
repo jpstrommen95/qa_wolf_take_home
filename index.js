@@ -173,8 +173,8 @@ async function doTests({ numArticles, url }) {
 (async () => {
   const numArticles = 100;
   const urlList = [
-    'https://news.ycombinator.com/news',
     'https://news.ycombinator.com/newest',
+    'https://news.ycombinator.com/news',
   ];
 
   for (const url of urlList) {
