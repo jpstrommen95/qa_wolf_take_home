@@ -23,13 +23,21 @@ function convertRelativeTimeToEpoch(timeString) {
 }
 
 function toString({
+  ageRelativeText,
+  ageEpochTime,
   id,
   index,
-  timeDescription,
-  timestamp,
   title,
 }) {
-  return `${index + 1}. ${moment(timestamp).toISOString()}:from ${timeDescription}:${id}:"${title}"`;
+  const metadata = [
+    `${index + 1}`.padEnd(3, ' '),
+    `${id}`,
+    `${ageRelativeText}`.padEnd(14, ' '),
+    `${moment(ageEpochTime).toISOString()}`,
+    `${title}`,
+  ];
+
+  return metadata.join(':');
 }
 
 /**
@@ -56,7 +64,8 @@ async function fetchArticles({ numArticles, url }) {
       articles.map(article => ({
         id: article.id,
         title: article.querySelector('.titleline a').innerText,
-        timeDescription: article.nextSibling.querySelector('.age').innerText,
+        ageRelativeText: article.nextSibling.querySelector('.age').innerText, // ex. "5 minutes ago"
+        ageLocalTime: article.nextSibling.querySelector('.age').title,
       }))
     );
 
@@ -83,7 +92,7 @@ async function fetchArticles({ numArticles, url }) {
   return articlesData.slice(0, numArticles).map((article, index) => ({
     ...article,
     index,
-    timestamp: convertRelativeTimeToEpoch(article.timeDescription),
+    ageEpochTime: convertRelativeTimeToEpoch(article.ageRelativeText),
   }));
 };
 
@@ -107,8 +116,8 @@ async function checkHackerNewsArticlesSorted({ articles }) {
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
     const previousArticle = articles[index - 1];
-    const isBeforePrevious = (moment(article.timestamp).isBefore(previousArticle.timestamp));
-    const isMatch = article.timestamp === previousArticle.timestamp;
+    const isBeforePrevious = (moment(article.ageLocalTime).isBefore(previousArticle.ageLocalTime));
+    const isMatch = article.ageLocalTime === previousArticle.ageLocalTime;
     const isSortedSoFar = isBeforePrevious || isMatch;
 
     if (!isSortedSoFar) {
@@ -127,6 +136,7 @@ function sleep(ms) {
 
 async function doTests({ numArticles, url }) {
   console.log(`Fetching from ${url}`);
+  console.log(`${`Current Time is`.padEnd(27, ' ')}:${moment(nowTime).toISOString()}`);
   const articles = await fetchArticles({ numArticles, url });
   await printHackerNewsTitles({ articles: articles });
   await checkHackerNewsArticlesSorted({ articles: articles });
