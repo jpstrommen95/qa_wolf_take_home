@@ -2,13 +2,14 @@
 
 ## Todo
 
-- start exploring how `/news` actually is sorted
-  - print exhaustive metadata
-  - make a guess - maybe `score` ?
-  - write a test to verify the actual sorting criteria
+none
 
 ## To Done
 
+- start exploring how `/news` actually is sorted
+  - print exhaustive metadata
+  - make a guess - maybe `score`?
+  - make a new guess - maybe `id`?
 - fix chronological checking logic
 - simplify pagination by letting playwright just click the "more" button :facepalm:
 - update pagination from /news query params to /newest query params

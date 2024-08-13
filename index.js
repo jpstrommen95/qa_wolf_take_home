@@ -23,13 +23,21 @@ function convertRelativeTimeToEpoch(timeString) {
 }
 
 function toString({
+  ageRelativeText,
+  ageEpochTime,
   id,
   index,
-  timeDescription,
-  timestamp,
   title,
 }) {
-  return `${index + 1}. ${moment(timestamp).toISOString()}:from ${timeDescription}:${id}:"${title}"`;
+  const metadata = [
+    `${index + 1}`.padEnd(3, ' '),
+    `${id}`,
+    `${ageRelativeText}`.padEnd(14, ' '),
+    `${moment(ageEpochTime).toISOString()}`,
+    `${title}`,
+  ];
+
+  return metadata.join(':');
 }
 
 /**
@@ -56,7 +64,8 @@ async function fetchArticles({ numArticles, url }) {
       articles.map(article => ({
         id: article.id,
         title: article.querySelector('.titleline a').innerText,
-        timeDescription: article.nextSibling.querySelector('.age').innerText,
+        ageRelativeText: article.nextSibling.querySelector('.age').innerText, // ex. "5 minutes ago"
+        ageLocalTime: article.nextSibling.querySelector('.age').title,
       }))
     );
 
@@ -83,7 +92,7 @@ async function fetchArticles({ numArticles, url }) {
   return articlesData.slice(0, numArticles).map((article, index) => ({
     ...article,
     index,
-    timestamp: convertRelativeTimeToEpoch(article.timeDescription),
+    ageEpochTime: convertRelativeTimeToEpoch(article.ageRelativeText),
   }));
 };
 
@@ -92,7 +101,7 @@ async function fetchArticles({ numArticles, url }) {
  * 
  * @param articles - the pre-retrieved articles
  */
-async function printHackerNewsTitles({ articles }) {
+function printHackerNewsTitles({ articles }) {
   articles.forEach((article) => console.log(toString(article)));
 }
 
@@ -102,23 +111,60 @@ async function printHackerNewsTitles({ articles }) {
  * 
  * @param articles - the pre-retrieved articles to check
  */
-async function checkHackerNewsArticlesSorted({ articles }) {
+function checkHackerNewsChronSort({ articles }) {
   // Validate that the articles are sorted from newest to oldest
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
     const previousArticle = articles[index - 1];
-    const isBeforePrevious = (moment(article.timestamp).isBefore(previousArticle.timestamp));
-    const isMatch = article.timestamp === previousArticle.timestamp;
+    const isBeforePrevious = (moment(article.ageLocalTime).isBefore(previousArticle.ageLocalTime));
+    const isMatch = article.ageLocalTime === previousArticle.ageLocalTime;
     const isSortedSoFar = isBeforePrevious || isMatch;
 
     if (!isSortedSoFar) {
-      console.log(`Expected\n${toString(previousArticle)}\nto be newer than\n${toString(article)}.`);
+      console.log([
+        `The articles are NOT sorted from newest to oldest. Expected:`,
+        `${toString(previousArticle)}`,
+        `to be newer than`,
+        `${toString(article)}.`,
+      ].join('\n  '));
     }
 
     return isSortedSoFar;
   });
 
-  console.log(`The articles are ${isSorted ? '' : 'NOT '}sorted from newest to oldest.`);
+  if (isSorted) {
+    console.log(`The articles are sorted from newest to oldest.`);
+  }
+}
+
+/**
+ * Checks if the articles are sorted based on their id value.
+ * And reports the result to console.
+ * 
+ * @param articles - the pre-retrieved articles to check
+ */
+function checkHackerNewsIdSort({ articles }) {
+  // Validate that the articles are sorted from newest to oldest
+  const isSorted = articles.every((article, index) => {
+    if (index === 0) return true;
+    const previousArticle = articles[index - 1];
+    const isSortedSoFar = previousArticle.id >= article.id;
+
+    if (!isSortedSoFar) {
+      console.log([
+        `The articles are NOT sorted by id. Expected:`,
+        `${toString(previousArticle)}`,
+        `to have a higher id than`,
+        `${toString(article)}.`,
+      ].join('\n  '));
+    }
+
+    return isSortedSoFar;
+  });
+
+  if (isSorted) {
+    console.log(`The articles are sorted by id.`);
+  }
 }
 
 function sleep(ms) {
@@ -127,9 +173,12 @@ function sleep(ms) {
 
 async function doTests({ numArticles, url }) {
   console.log(`Fetching from ${url}`);
+  console.log(`${`Current Time is`.padEnd(27, ' ')}:${moment(nowTime).toISOString()}`);
   const articles = await fetchArticles({ numArticles, url });
-  await printHackerNewsTitles({ articles: articles });
-  await checkHackerNewsArticlesSorted({ articles: articles });
+  printHackerNewsTitles({ articles });
+  checkHackerNewsChronSort({ articles });
+  checkHackerNewsIdSort({ articles });
+  console.log(`Completed checking ${url}.`);
 }
 
 (async () => {
@@ -141,7 +190,6 @@ async function doTests({ numArticles, url }) {
 
   for (const url of urlList) {
     await doTests({ numArticles, url });
-    console.log(`Completed checking ${url}.`);
     sleep(5000);
   }
 })();
