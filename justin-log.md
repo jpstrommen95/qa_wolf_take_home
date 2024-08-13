@@ -2,21 +2,27 @@
 
 ## Todo
 
-- start exploring how it actually is sorted
-  - print titles
+- start exploring how `/news` actually is sorted
   - print exhaustive metadata
-  - make a guess
+  - make a guess - maybe `score` ?
   - write a test to verify the actual sorting criteria
 
 ## To Done
 
+- fix chronological checking logic
+- simplify pagination by letting playwright just click the "more" button :facepalm:
+- update pagination from /news query params to /newest query params
+- fix url from /news to /newest :facepalm: (that would explain why they weren't sorted)
+- print out metadata
+  - parse timestamp
+  - print titles
 - refactor test
 - complete question 1.2
   - exactly the first 100 articles are NOT sorted
 - for reference, see how AI would solve this problem
 - verify `node index.js` runs at least something
   - initial behavior seems to be opening up the specified hacker news
-  - in my default incognito browser
+  - in ~my default~ [a chromium] incognito browser
   - doesn't seem to test anything yet (I sort of expected that)
 - install playwright dependency locally
 - Install dependencies
