@@ -27,7 +27,6 @@ function toString({
   ageEpochTime,
   id,
   index,
-  score,
   title,
 }) {
   const metadata = [
@@ -35,7 +34,6 @@ function toString({
     `${id}`,
     `${ageRelativeText}`.padEnd(14, ' '),
     `${moment(ageEpochTime).toISOString()}`,
-    `${score}`,
     `${title}`,
   ];
 
@@ -68,7 +66,6 @@ async function fetchArticles({ numArticles, url }) {
         title: article.querySelector('.titleline a').innerText,
         ageRelativeText: article.nextSibling.querySelector('.age').innerText, // ex. "5 minutes ago"
         ageLocalTime: article.nextSibling.querySelector('.age').title,
-        score: article.nextSibling.querySelector('.score')?.id,
       }))
     );
 
@@ -133,6 +130,32 @@ async function checkHackerNewsArticlesSorted({ articles }) {
   console.log(`The articles are ${isSorted ? '' : 'NOT '}sorted from newest to oldest.`);
 }
 
+/**
+ * Checks if the articles are sorted based on their id value.
+ * And reports the result to console.
+ * 
+ * @param articles - the pre-retrieved articles to check
+ */
+function checkHackerNewsIdSort({ articles }) {
+  // Validate that the articles are sorted from newest to oldest
+  const isSorted = articles.every((article, index) => {
+    if (index === 0) return true;
+    const previousArticle = articles[index - 1];
+    const isSortedSoFar = previousArticle.id >= article.id;
+
+    if (!isSortedSoFar) {
+      console.log(`The articles are NOT sorted by id.`);
+      console.log(`Expected\n${toString(previousArticle)}\nto have a higher id than\n${toString(article)}.`);
+    }
+
+    return isSortedSoFar;
+  });
+
+  if (isSorted) {
+    console.log(`The articles are sorted by id.`);
+  }
+}
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -143,6 +166,7 @@ async function doTests({ numArticles, url }) {
   const articles = await fetchArticles({ numArticles, url });
   await printHackerNewsTitles({ articles: articles });
   await checkHackerNewsArticlesSorted({ articles: articles });
+  checkHackerNewsIdSort({ articles });
 }
 
 (async () => {
