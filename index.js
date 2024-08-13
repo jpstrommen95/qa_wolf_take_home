@@ -111,7 +111,7 @@ function printHackerNewsTitles({ articles }) {
  * 
  * @param articles - the pre-retrieved articles to check
  */
-function checkHackerNewsArticlesSorted({ articles }) {
+function checkHackerNewsChronSort({ articles }) {
   // Validate that the articles are sorted from newest to oldest
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
@@ -121,6 +121,7 @@ function checkHackerNewsArticlesSorted({ articles }) {
     const isSortedSoFar = isBeforePrevious || isMatch;
 
     if (!isSortedSoFar) {
+      console.log(`The articles are NOT sorted from newest to oldest.`);
       console.log(`Expected\n${toString(previousArticle)}\nto be newer than\n${toString(article)}.`);
     }
 
@@ -165,7 +166,7 @@ async function doTests({ numArticles, url }) {
   console.log(`${`Current Time is`.padEnd(27, ' ')}:${moment(nowTime).toISOString()}`);
   const articles = await fetchArticles({ numArticles, url });
   printHackerNewsTitles({ articles });
-  checkHackerNewsArticlesSorted({ articles });
+  checkHackerNewsChronSort({ articles });
   checkHackerNewsIdSort({ articles });
   console.log(`Completed checking ${url}.`);
 }
