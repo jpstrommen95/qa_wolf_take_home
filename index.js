@@ -27,6 +27,7 @@ function toString({
   ageEpochTime,
   id,
   index,
+  score,
   title,
 }) {
   const metadata = [
@@ -34,6 +35,7 @@ function toString({
     `${id}`,
     `${ageRelativeText}`.padEnd(14, ' '),
     `${moment(ageEpochTime).toISOString()}`,
+    `${score}`,
     `${title}`,
   ];
 
@@ -66,6 +68,7 @@ async function fetchArticles({ numArticles, url }) {
         title: article.querySelector('.titleline a').innerText,
         ageRelativeText: article.nextSibling.querySelector('.age').innerText, // ex. "5 minutes ago"
         ageLocalTime: article.nextSibling.querySelector('.age').title,
+        score: article.nextSibling.querySelector('.score')?.id,
       }))
     );
 
@@ -145,8 +148,8 @@ async function doTests({ numArticles, url }) {
 (async () => {
   const numArticles = 100;
   const urlList = [
-    'https://news.ycombinator.com/newest',
     'https://news.ycombinator.com/news',
+    'https://news.ycombinator.com/newest',
   ];
 
   for (const url of urlList) {
