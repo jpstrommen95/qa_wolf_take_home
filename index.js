@@ -101,7 +101,7 @@ async function fetchArticles({ numArticles, url }) {
  * 
  * @param articles - the pre-retrieved articles
  */
-async function printHackerNewsTitles({ articles }) {
+function printHackerNewsTitles({ articles }) {
   articles.forEach((article) => console.log(toString(article)));
 }
 
@@ -111,7 +111,7 @@ async function printHackerNewsTitles({ articles }) {
  * 
  * @param articles - the pre-retrieved articles to check
  */
-async function checkHackerNewsArticlesSorted({ articles }) {
+function checkHackerNewsArticlesSorted({ articles }) {
   // Validate that the articles are sorted from newest to oldest
   const isSorted = articles.every((article, index) => {
     if (index === 0) return true;
@@ -164,8 +164,8 @@ async function doTests({ numArticles, url }) {
   console.log(`Fetching from ${url}`);
   console.log(`${`Current Time is`.padEnd(27, ' ')}:${moment(nowTime).toISOString()}`);
   const articles = await fetchArticles({ numArticles, url });
-  await printHackerNewsTitles({ articles: articles });
-  await checkHackerNewsArticlesSorted({ articles: articles });
+  printHackerNewsTitles({ articles: articles });
+  checkHackerNewsArticlesSorted({ articles: articles });
   checkHackerNewsIdSort({ articles });
 }
 
